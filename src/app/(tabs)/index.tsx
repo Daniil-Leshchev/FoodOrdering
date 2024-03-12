@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, Image, FlatList } from 'react-native';
 
 import products from '@/assets/data/products';
 
@@ -6,12 +6,12 @@ import ProductListItem from '@/src/components/ProductListItem';
 
 export default function MenuScreen() {
   return (
-    <ScrollView>
-      {
-        products.map((item) => {
-          return <ProductListItem product={item}/>
-        })
-      }
-    </ScrollView>
+    <FlatList
+      data={products}
+      renderItem={({item}) => <ProductListItem product={item}/>}
+      numColumns={2}
+      contentContainerStyle={{gap: 10, padding: 10}}//styles for container and rows
+      columnWrapperStyle={{gap: 10}}//styles for columns
+    />
   )
 }

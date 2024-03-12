@@ -10,7 +10,7 @@ type ProductListItemProps = {
 }
 const ProductListItem = ({product}: ProductListItemProps) => {
   return (
-    <View style={styles.container}>
+    <View style={styles.pizzaContainer}>
 		  <Image source={{uri: product.image || defaultPizzaImage}} style={styles.image}/>
       <Text style={styles.title}>{product.name}</Text>
       <Text style={styles.price}>${product.price}</Text>
@@ -21,10 +21,12 @@ const ProductListItem = ({product}: ProductListItemProps) => {
 export default ProductListItem;
 
 const styles = StyleSheet.create({
-  container: {
+  pizzaContainer: {
     backgroundColor: Colors.light.background,
     padding: 10,
     borderRadius: 20,
+    flex: 1,//takes all space that is available
+    maxWidth: '50%'//not more than half of the screen
   },
   image: {
     width: '100%',
