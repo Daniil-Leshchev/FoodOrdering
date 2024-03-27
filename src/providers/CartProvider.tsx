@@ -5,13 +5,15 @@ import { randomUUID } from 'expo-crypto';//рандомный id для прод
 type CartType = {
   items: CartItem[],
   addItem: (product: Product, size: CartItem['size']) => void,
-  updateQuantity: (itemId: string, amount: -1 | 1) => void;//minu or plus 1
+  updateQuantity: (itemId: string, amount: -1 | 1) => void;//minu or plus 1,
+  total: number
 }
 
 const CartContext = createContext<CartType>({
   items: [],
   addItem: () => {},
-  updateQuantity: () => {}
+  updateQuantity: () => {},
+  total: 0
 });
 
 const CartProvider = ({ children }: PropsWithChildren) => {
@@ -46,9 +48,9 @@ const CartProvider = ({ children }: PropsWithChildren) => {
     .filter(item => item.quantity > 0);
     setItems(updatedItems);
   }
-
+    const total = items.reduce((sum, item) => (sum += item.product.price * item.quantity), 0);
     return (
-        <CartContext.Provider value={{ items: items, addItem, updateQuantity }}>
+        <CartContext.Provider value={{ items: items, addItem, updateQuantity, total }}>
           {children}
           {/* предоставляем всем элементам доступ к провайдеру */}
         </CartContext.Provider>
