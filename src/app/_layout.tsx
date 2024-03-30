@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import CartProvider from '../providers/CartProvider';
 
 import { useColorScheme } from '@/src/components/useColorScheme';
+import React from 'react';
 
 export {
   // Catch any errors thrown by the Layout component.

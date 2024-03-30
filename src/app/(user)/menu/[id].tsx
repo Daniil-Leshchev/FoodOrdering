@@ -6,6 +6,7 @@ import { useState } from 'react';
 import Button from '@/src/components/Button';
 import { useCart } from '@/src/providers/CartProvider';
 import { PizzaSize } from '@/src/types';
+import React from 'react';
 
 const sizes: PizzaSize[] = ['S', 'M', 'L', 'XL'];
 
