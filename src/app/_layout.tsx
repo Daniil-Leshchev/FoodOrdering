@@ -9,6 +9,8 @@ import CartProvider from '../providers/CartProvider';
 import { useColorScheme } from '@/src/components/useColorScheme';
 import React from 'react';
 
+import AuthProvider from '../providers/AuthProvider';
+
 export {
   // Catch any errors thrown by the Layout component.
   ErrorBoundary,
@@ -51,15 +53,17 @@ function RootLayoutNav() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <CartProvider>
-        {/* оборачиваем все внутри layout в cart provider, чтобы был доступ к контексту */}
-        <Stack>
-          <Stack.Screen name="(admin)" options={{ headerShown: false }} />
-          <Stack.Screen name="(user)" options={{ headerShown: false }} />
-          <Stack.Screen name="cart" options={{ presentation: 'modal', title: 'Cart' }} />
-          <Stack.Screen name="(auth)" options={{ headerShown: false}} />
-        </Stack>
-      </CartProvider>
+      <AuthProvider>
+        <CartProvider>
+          {/* оборачиваем все внутри layout в cart provider, чтобы был доступ к контексту */}
+          <Stack>
+            <Stack.Screen name="(admin)" options={{ headerShown: false }} />
+            <Stack.Screen name="(user)" options={{ headerShown: false }} />
+            <Stack.Screen name="cart" options={{ presentation: 'modal', title: 'Cart' }} />
+            <Stack.Screen name="(auth)" options={{ headerShown: false}} />
+          </Stack>
+        </CartProvider>
+      </AuthProvider>
     </ThemeProvider>
   );
 }
