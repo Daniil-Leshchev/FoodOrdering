@@ -26,12 +26,12 @@ export default function AuthProvider({children}: PropsWithChildren) {
         const {data: {session}} = await supabase.auth.getSession();
         setSession(session);
 
-        //настройка профиля для публичной таблицы
+        //настройка профиля для публичной таблицы сразу при создании юзера
         if (session) {
           const { data } = await supabase
             .from('profiles')
             .select('*')
-            .eq('id', session.user.id)
+            .eq('id', session.user.id)//ищем нужный id
             .single();
           setProfile(data || null);
         }

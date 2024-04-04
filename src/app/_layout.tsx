@@ -4,12 +4,11 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
-import CartProvider from '../providers/CartProvider';
-
 import { useColorScheme } from '@/src/components/useColorScheme';
 import React from 'react';
-
+import CartProvider from '../providers/CartProvider';
 import AuthProvider from '../providers/AuthProvider';
+import QueryProvider from '../providers/QueryProvider';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -54,15 +53,17 @@ function RootLayoutNav() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <AuthProvider>
-        <CartProvider>
-          {/* оборачиваем все внутри layout в cart provider, чтобы был доступ к контексту */}
-          <Stack>
-            <Stack.Screen name="(admin)" options={{ headerShown: false }} />
-            <Stack.Screen name="(user)" options={{ headerShown: false }} />
-            <Stack.Screen name="cart" options={{ presentation: 'modal', title: 'Cart' }} />
-            <Stack.Screen name="(auth)" options={{ headerShown: false}} />
-          </Stack>
-        </CartProvider>
+        <QueryProvider>
+          <CartProvider>
+            {/* оборачиваем все внутри layout в cart provider, чтобы был доступ к контексту */}
+            <Stack>
+              <Stack.Screen name="(admin)" options={{ headerShown: false }} />
+              <Stack.Screen name="(user)" options={{ headerShown: false }} />
+              <Stack.Screen name="cart" options={{ presentation: 'modal', title: 'Cart' }} />
+              <Stack.Screen name="(auth)" options={{ headerShown: false}} />
+            </Stack>
+          </CartProvider>
+        </QueryProvider>
       </AuthProvider>
     </ThemeProvider>
   );
