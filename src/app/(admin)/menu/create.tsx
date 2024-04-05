@@ -4,7 +4,9 @@ import Colors from '@/src/constants/Colors';
 import { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, Image, Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import React from 'react';
+import { useInsertProduct } from '@/src/api/products';
 
 const CreateProductScreen = () => {
   const defaultPizzaImage = 'https://notjustdev-dummy.s3.us-east-2.amazonaws.com/food/default.png';
@@ -14,6 +16,12 @@ const CreateProductScreen = () => {
 
   const { id } = useLocalSearchParams();
   const isUpdating = !!id;//converting falsy/truly value to boolean
+
+  const { mutate: insertProduct } = useInsertProduct();
+  //usemutation from api returns function called mutate
+  //when we execute mutate we call mutation function 
+
+  const router = useRouter();
 
   const [errors, setErrors] = useState('');
 
@@ -44,7 +52,14 @@ const CreateProductScreen = () => {
       return;
     }
     console.warn('Creating product: ', name);
-    resetFields();
+
+    insertProduct({name, price: parseFloat(price), image}, {//inside the state price is a string, so we need to convert it to a number
+      onSuccess: () => {
+        resetFields();
+        router.back();
+      }
+    }  
+  )
   };
 
   const onUpdateCreate = () => {
