@@ -1,25 +1,36 @@
 import Button from '@/src/components/Button';
-import defaultPizzaImage from '@/src/components/ProductListItem';
+import {defaultPizzaImage} from '@/src/components/ProductListItem';
 import Colors from '@/src/constants/Colors';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TextInput, Image, Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
-import { useInsertProduct } from '@/src/api/products';
+import { useDeleteProduct, useInsertProduct, useProduct, useUpdateProduct } from '@/src/api/products';
 
 const CreateProductScreen = () => {
-  const defaultPizzaImage = 'https://notjustdev-dummy.s3.us-east-2.amazonaws.com/food/default.png';
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
   const [image, setImage] = useState<string | null>(null);
 
-  const { id } = useLocalSearchParams();
-  const isUpdating = !!id;//converting falsy/truly value to boolean
+  const { id: idString } = useLocalSearchParams();
+  const id = parseFloat(typeof idString === 'string' ? idString : idString?.[0]);
+  const isUpdating = !!idString;//converting falsy/truly value to boolean
 
   const { mutate: insertProduct } = useInsertProduct();
+  const { mutate: updateProduct } = useUpdateProduct();
+  const { mutate: deleteProduct } = useDeleteProduct();
   //usemutation from api returns function called mutate
-  //when we execute mutate we call mutation function 
+  //when we execute mutate we call mutation function
+  const { data: updatingProduct } = useProduct(id);
+
+  useEffect(() => {//если обновляем текущий продукт, то заполняем данные в полях на те, что были изначально из бд
+    if (updatingProduct) {
+      setName(updatingProduct.name);
+      setPrice(updatingProduct.price.toString());
+      setName(updatingProduct.name);
+    }
+  }, [updatingProduct]);//отслеживаем изменения updatingProduct(dependency)
 
   const router = useRouter();
 
@@ -51,7 +62,6 @@ const CreateProductScreen = () => {
     if (!validateInput()) {
       return;
     }
-    console.warn('Creating product: ', name);
 
     insertProduct({name, price: parseFloat(price), image}, {//inside the state price is a string, so we need to convert it to a number
       onSuccess: () => {
@@ -62,17 +72,24 @@ const CreateProductScreen = () => {
   )
   };
 
-  const onUpdateCreate = () => {
+  const onUpdate = () => {
     if (!validateInput()) {
       return;
     }
-    console.warn('Updating product: ', name);
-    resetFields();
+    
+    updateProduct({ id, name, price: parseFloat(price), image },
+      {
+        onSuccess: () => {
+          resetFields();
+          router.back();
+        }
+      }
+    );
   };
 
   const onSubmit = () => {
     if (isUpdating) {
-      onUpdateCreate();
+      onUpdate();
     }
     else {
       onCreate();
@@ -93,7 +110,9 @@ const CreateProductScreen = () => {
   };
 
   const onDelete = () => {
-    console.warn('Delete!');
+    deleteProduct(id, {onSuccess: () => {
+      router.replace('/(admin)');
+    }});
   }
 
   const confirmDelete = () => {
