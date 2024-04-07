@@ -1,26 +1,33 @@
 import { PropsWithChildren, createContext, useContext, useState } from "react";
 import { CartItem } from "../types";
 import { randomUUID } from 'expo-crypto';//рандомный id для продукта
-import { Tables } from "@/src//database.types";
+import { Tables } from "@/src/database.types";
+import  React from 'react';
+import { useInsertOrder } from "@/src/api/orders";
+import { router } from "expo-router";
 
 type Product = Tables<'products'>;
 
 type CartType = {
   items: CartItem[],
   addItem: (product: Product, size: CartItem['size']) => void,
-  updateQuantity: (itemId: string, amount: -1 | 1) => void;//minu or plus 1,
-  total: number
+  updateQuantity: (itemId: string, amount: -1 | 1) => void,//minus or plus 1,
+  total: number,
+  checkout: () => void,
 }
 
 const CartContext = createContext<CartType>({
   items: [],
   addItem: () => {},
   updateQuantity: () => {},
-  total: 0
+  total: 0,
+  checkout: () => {}
 });
 
 const CartProvider = ({ children }: PropsWithChildren) => {
   const [items, setItems] = useState<CartItem[]>([]);
+  const { mutate: insertOrder } = useInsertOrder();
+
   const addItem = (product: Product, size: CartItem['size']) =>
   {
     const existingItem = items.find(
@@ -51,9 +58,22 @@ const CartProvider = ({ children }: PropsWithChildren) => {
     .filter(item => item.quantity > 0);
     setItems(updatedItems);
   }
-    const total = items.reduce((sum, item) => (sum += item.product.price * item.quantity), 0);
+
+  const total = items.reduce((sum, item) => (sum += item.product.price * item.quantity), 0);
+
+  const clearCart = () => {
+    setItems([]);
+  }
+
+  const checkout = () => {
+    insertOrder({total}, {onSuccess: (data) => {
+      clearCart();
+      router.push(`/(user)/orders/${data.id}`);
+    }});
+  }
+
     return (
-        <CartContext.Provider value={{ items: items, addItem, updateQuantity, total }}>
+        <CartContext.Provider value={{ items: items, addItem, updateQuantity, total, checkout }}>
           {children}
           {/* предоставляем всем элементам доступ к провайдеру */}
         </CartContext.Provider>
