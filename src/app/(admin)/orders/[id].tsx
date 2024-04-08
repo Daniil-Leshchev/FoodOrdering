@@ -5,12 +5,17 @@ import React from 'react';
 import OrderItemListItem from '@/src/components/OrderItemListItem';
 import { OrderStatusList } from '@/src/types';
 import Colors from '@/src/constants/Colors';
-import { useOrderDetails } from '@/src/api/orders';
+import { useOrderDetails, useUpdateOrder } from '@/src/api/orders';
 
 const OrderDetailsScreen = () => {
   const { id: idString } = useLocalSearchParams();
   const id = parseFloat(typeof idString === 'string' ? idString : idString[0]);
   const { data: order, error, isLoading} = useOrderDetails(id);
+  const { mutate: updateOrder } = useUpdateOrder();
+
+  const updatedStatus = (status: string) => {
+    updateOrder({id: id, updatedFields: {status}})
+  }
 
   if (isLoading) {
     return <ActivityIndicator/>;
@@ -34,7 +39,7 @@ const OrderDetailsScreen = () => {
               {OrderStatusList.map((status) => (
                 <Pressable
                   key={status}
-                  onPress={() => console.warn('Update status')}
+                  onPress={() => updatedStatus(status)}
                   style={{
                     borderColor: Colors.light.tint,
                     borderWidth: 1,
@@ -44,8 +49,7 @@ const OrderDetailsScreen = () => {
                     backgroundColor: order.status === status
                       ? Colors.light.tint
                       : 'transparent',
-                  }}
-                >
+                  }}>
                   <Text
                     style={{color: order.status === status ? 'white' : Colors.light.tint}}>
                     {status}
