@@ -23,7 +23,7 @@ const OrderDetailsScreen = () => {
         <OrderListItem order={order}/>
 
         <FlatList
-          data={order.order_items}
+          data={order?.order_items}
           renderItem={({ item }) => <OrderItemListItem item={item} />}
           contentContainerStyle={{ gap: 10 }}
         />
