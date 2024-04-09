@@ -10,6 +10,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import Colors from '@/src/constants/Colors';
 import React from 'react';
 import { useProduct } from '@/src/api/products';
+import RemoteImage from '@/src/components/RemoteImage';
 
 const sizes: PizzaSize[] = ['S', 'M', 'L', 'XL'];
 
@@ -32,7 +33,7 @@ const ProductDetailsScreen = () => {
     return <ActivityIndicator/>;
   }
 
-  if (error) {
+  if (error || !product) {
     return <Text>Failed to fetch a product</Text>;
   }
     return (
@@ -55,7 +56,11 @@ const ProductDetailsScreen = () => {
           }}
           />
         <Stack.Screen options={{title: product.name}}/>
-        <Image source={{ uri: product.image || defaultPizzaImage}} style={styles.image}/>
+        <RemoteImage
+          path={product?.image}
+          fallback={defaultPizzaImage}
+          style={styles.image}
+          resizeMode='contain'/>
         <Text style={styles.title}>{product.name}</Text>
         <Text style={styles.price}>${product.price}</Text>
       </View>

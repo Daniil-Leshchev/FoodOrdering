@@ -7,6 +7,10 @@ import * as ImagePicker from 'expo-image-picker';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
 import { useDeleteProduct, useInsertProduct, useProduct, useUpdateProduct } from '@/src/api/products';
+import * as FileSystem from 'expo-file-system';
+import { randomUUID } from 'expo-crypto';
+import { supabase } from '@/src/lib/supabase';
+import { decode } from 'base64-arraybuffer';
 
 const CreateProductScreen = () => {
   const [name, setName] = useState('');
@@ -58,12 +62,14 @@ const CreateProductScreen = () => {
     return true;
   };
 
-  const onCreate = () => {
+  const onCreate = async () => {
     if (!validateInput()) {
       return;
     }
 
-    insertProduct({name, price: parseFloat(price), image}, {//inside the state price is a string, so we need to convert it to a number
+    const imagePath = await uploadImage();
+
+    insertProduct({name, price: parseFloat(price), image: imagePath}, {//inside the state price is a string, so we need to convert it to a number
       onSuccess: () => {
         resetFields();
         router.back();
@@ -127,6 +133,27 @@ const CreateProductScreen = () => {
       }
     ]);
   }
+
+  const uploadImage = async () => {
+    if (!image?.startsWith('file://')) {
+      return;
+    }
+  
+    const base64 = await FileSystem.readAsStringAsync(image, {
+      encoding: 'base64',
+    });
+
+    const filePath = `${randomUUID()}.png`;
+    const contentType = 'image/png';
+    const { data, error } = await supabase.storage
+      .from('product-images')
+      .upload(filePath, decode(base64), { contentType });
+  
+    if (data) {
+      return data.path;
+    }
+  };
+
     return (
         <View style={styles.container}>
             <Stack.Screen options={{title: isUpdating ? "Update Product" : "Create Product"}}/>
