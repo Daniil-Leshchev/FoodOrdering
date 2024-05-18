@@ -9,6 +9,7 @@ import React from 'react';
 import CartProvider from '../providers/CartProvider';
 import AuthProvider from '../providers/AuthProvider';
 import QueryProvider from '../providers/QueryProvider';
+import NotificationProvider from '../providers/NotificationProvider';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -54,6 +55,7 @@ function RootLayoutNav() {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <AuthProvider>
         <QueryProvider>
+          <NotificationProvider>
           <CartProvider>
             {/* оборачиваем все внутри layout в cart provider, чтобы был доступ к контексту */}
             <Stack>
@@ -63,6 +65,7 @@ function RootLayoutNav() {
               <Stack.Screen name="(auth)" options={{ headerShown: false}} />
             </Stack>
           </CartProvider>
+          </NotificationProvider>
         </QueryProvider>
       </AuthProvider>
     </ThemeProvider>
